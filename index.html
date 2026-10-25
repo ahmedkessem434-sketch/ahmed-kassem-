@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocaLearn</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- LOGIN -->
+    <div id="loginPage" class="page">
+        <div class="card">
+            <h1>📚 VocaLearn</h1>
+            <p class="subtitle">Deine Vokabeln. Dein Fortschritt.</p>
+
+            <input id="email" type="email" placeholder="E-Mail">
+            <input id="password" type="password" placeholder="Passwort">
+
+            <button onclick="login()">Einloggen</button>
+
+            <p id="loginMessage"></p>
+
+            <div class="divider">oder</div>
+
+            <button class="google" onclick="googleLogin()">
+                🌐 Mit Google anmelden
+            </button>
+        </div>
+    </div>
+
+
+    <!-- APP -->
+    <div id="appPage" class="page hidden">
+
+        <header>
+            <h1>📚 VocaLearn</h1>
+            <button onclick="logout()">Abmelden</button>
+        </header>
+
+        <main>
+
+            <section class="welcome">
+                <h2>Deine Vokabeln</h2>
+                <p>du schaffst das 
+                                </p>
+            </section>
+
+            <section class="addBox">
+
+                <h2>Neue Vokabel</h2>
+
+                <div class="inputs">
+                    <input id="word1" placeholder="Deutsch, z. B. Haus">
+                    <input id="word2" placeholder="Englisch, z. B. house">
+                </div>
+
+                <button onclick="addWord()">＋ Vokabel hinzufügen</button>
+
+            </section>
+
+            <section>
+                <h2>Gespeicherte Vokabeln</h2>
+
+                <div id="wordList"></div>
+            </section>
+
+            <section class="learnBox">
+
+                <h2>🧠 Lernen</h2>
+
+                <div id="question">
+                    Drücke auf „Lernen“, um zu starten.
+                </div>
+
+                <input id="answer" placeholder="Deine Antwort">
+
+                <button onclick="checkAnswer()">Antwort prüfen</button>
+
+                <p id="result"></p>
+
+                <button onclick="nextWord()">Nächste Vokabel</button>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
