@@ -1,45 +1,6 @@
 
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VocaLearn</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #e9edf2;
-            color: #252525;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Login */
-
-        #loginPage {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            background-color: #e9edf2;
-        }
-
-        .card {
-            width: 100%;
-            max-width: 400px;
-            padding: 32px;
-            background-color: white;
-            border: 1px solid #d8dde4;
-            border-radius: 7px;
+            border: 1px solid #c7c7c7;
+            border-radius: 6px;
             text-align: center;
         }
 
@@ -49,9 +10,9 @@
         }
 
         .subtitle {
-            color: #68717c;
-            font-size: 14px;
+            color: #777;
             margin-bottom: 25px;
+            font-size: 14px;
         }
 
         /* Eingabefelder */
@@ -60,15 +21,15 @@
             width: 100%;
             padding: 12px;
             margin: 8px 0;
-            background-color: white;
-            border: 1px solid #cfd5dd;
+            border: 1px solid #ccc;
             border-radius: 4px;
+            background: white;
             font-size: 14px;
         }
 
         input:focus {
             outline: none;
-            border-color: #4a83c5;
+            border-color: #3979bd;
         }
 
         /* Buttons */
@@ -77,14 +38,14 @@
             padding: 11px 16px;
             border: none;
             border-radius: 4px;
-            background-color: #3979bd;
+            background: #3979bd;
             color: white;
             font-size: 14px;
             cursor: pointer;
         }
 
         button:hover {
-            background-color: #2d65a0;
+            background: #2e649f;
         }
 
         .card > button {
@@ -93,13 +54,13 @@
         }
 
         .google {
-            background-color: white;
+            background: white;
             color: #333;
-            border: 1px solid #cfd5dd;
+            border: 1px solid #ccc;
         }
 
         .google:hover {
-            background-color: #f5f6f8;
+            background: #f3f3f3;
         }
 
         .divider {
@@ -116,18 +77,18 @@
             content: "";
             flex: 1;
             height: 1px;
-            background-color: #dfe3e8;
+            background: #ddd;
         }
 
-        /* Kopfzeile */
+        /* Obere Leiste */
 
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px 7%;
-            background-color: white;
-            border-bottom: 1px solid #d8dde4;
+            background: white;
+            border-bottom: 1px solid #ccc;
         }
 
         header h1 {
@@ -136,12 +97,12 @@
         }
 
         header button {
-            background-color: #eaf1f9;
+            background: #eaf1f9;
             color: #32669e;
         }
 
         header button:hover {
-            background-color: #d9e6f5;
+            background: #d9e6f5;
         }
 
         /* Hauptbereich */
@@ -155,8 +116,8 @@
         section {
             margin-bottom: 18px;
             padding: 22px;
-            background-color: white;
-            border: 1px solid #d8dde4;
+            background: white;
+            border: 1px solid #c7c7c7;
             border-radius: 6px;
         }
 
@@ -169,17 +130,17 @@
         /* Begrüßung */
 
         .welcome {
-            background-color: #ffffff;
+            background: white;
             border-left: 4px solid #3979bd;
         }
 
         .welcome p {
+            color: #666;
+            line-height: 1.5;
             margin-bottom: 0;
-            color: #626b76;
-            line-height: 1.6;
         }
 
-        /* Neue Vokabel */
+        /* Vokabel hinzufügen */
 
         .inputs {
             display: flex;
@@ -195,18 +156,18 @@
             margin-top: 5px;
         }
 
-        /* Gespeicherte Vokabeln */
+        /* Vokabelliste */
 
         #wordList > * {
             padding: 12px;
             margin-bottom: 8px;
-            background-color: #f7f8fa;
-            border: 1px solid #e0e4e9;
+            background: #f7f7f7;
+            border: 1px solid #ddd;
             border-radius: 4px;
             overflow-wrap: anywhere;
         }
 
-        /* Lernen */
+        /* Lernbereich */
 
         .learnBox {
             border-top: 3px solid #3979bd;
@@ -215,8 +176,8 @@
         #question {
             margin: 15px 0;
             padding: 18px;
-            background-color: #f0f2f5;
-            border: 1px solid #dce1e7;
+            background: #eeeeee;
+            border: 1px solid #d5d5d5;
             border-radius: 4px;
             text-align: center;
             font-size: 17px;
