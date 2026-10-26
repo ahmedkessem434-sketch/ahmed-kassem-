@@ -1,326 +1,305 @@
-   
-import { initializeApp } from
-    "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+  
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
 
 import {
-    getAuth,
-    setPersistence,
-    browserLocalPersistence,
-    onAuthStateChanged,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut
-} from
-    "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile,
+  sendPasswordResetEmail,
+  setPersistence,
+  browserLocalPersistence,
+  browserSessionPersistence
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    getDocs,
-    deleteDoc,
-    doc
-} from
-    "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
-
-// DEINE FIREBASE-DATEN HIER EINTRAGEN
+// 1. Deine Firebase-Konfiguration
 const firebaseConfig = {
-    apiKey: "DEIN_API_KEY",
-    authDomain: "DEIN_PROJEKT.firebaseapp.com",
-    projectId: "DEINE_PROJEKT_ID",
-    appId: "DEINE_APP_ID"
+  apiKey: "AIzaSyApwjzgVtKnP258TDJxDwnyNAAZGWeXpXM",
+  authDomain: "vocalearn-2e7b5.firebaseapp.com",
+  projectId: "vocalearn-2e7b5",
+  storageBucket: "vocalearn-2e7b5.firebasestorage.app",
+  messagingSenderId: "706553554359",
+  appId: "1:706553554359:web:f63df69b367c1aa9983432",
+  measurementId: "G-9CDWK528RX"
 };
 
-const firebaseApp = initializeApp(firebaseConfig);
-const auth = getAuth(firebaseApp);
-const db = getFirestore(firebaseApp);
+// 2. Firebase initialisieren
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-const $ = id => document.getElementById(id);
+// 3. HTML-Elemente finden
+const authView = document.getElementById("authView");
+const userView = document.getElementById("userView");
 
-let words = [];
-let currentWord = null;
-let loading = false;
+const authForm = document.getElementById("authForm");
+const formTitle = document.getElementById("formTitle");
+const formSubtitle = document.getElementById("formSubtitle");
 
-function showLoginMessage(text) {
-    $("loginMessage").textContent = text;
+const loginTab = document.getElementById("loginTab");
+const registerTab = document.getElementById("registerTab");
+const authTabs = document.getElementById("authTabs");
+
+const nameField = document.getElementById("nameField");
+const passwordField = document.getElementById("passwordField");
+const confirmField = document.getElementById("confirmField");
+const loginOptions = document.getElementById("loginOptions");
+
+const displayNameInput = document.getElementById("displayName");
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const confirmPasswordInput = document.getElementById("confirmPassword");
+const rememberMeInput = document.getElementById("rememberMe");
+
+const submitButton = document.getElementById("submitButton");
+const forgotButton = document.getElementById("forgotButton");
+const logoutButton = document.getElementById("logoutButton");
+
+const message = document.getElementById("message");
+const userMessage = document.getElementById("userMessage");
+const userName = document.getElementById("userName");
+const userEmail = document.getElementById("userEmail");
+
+let mode = "login";
+let busy = false;
+
+// 4. Deutsche Fehlermeldungen
+function getErrorMessage(error) {
+  const messages = {
+    "auth/email-already-in-use":
+      "Diese E-Mail-Adresse ist bereits registriert.",
+    "auth/invalid-email":
+      "Bitte gib eine gültige E-Mail-Adresse ein.",
+    "auth/weak-password":
+      "Dein Passwort ist zu schwach. Verwende mindestens 6 Zeichen.",
+    "auth/invalid-credential":
+      "E-Mail-Adresse oder Passwort ist falsch.",
+    "auth/user-not-found":
+      "Es wurde kein Konto mit diesen Anmeldedaten gefunden.",
+    "auth/wrong-password":
+      "Das Passwort ist falsch.",
+    "auth/too-many-requests":
+      "Zu viele Versuche. Bitte warte kurz und versuche es später erneut.",
+    "auth/network-request-failed":
+      "Keine Verbindung möglich. Prüfe deine Internetverbindung.",
+    "auth/operation-not-allowed":
+      "Die E-Mail-/Passwort-Anmeldung ist in Firebase nicht aktiviert.",
+    "auth/unauthorized-domain":
+      "Diese Website-Domain ist in Firebase nicht autorisiert.",
+    "auth/invalid-api-key":
+      "Der Firebase-API-Schlüssel ist ungültig.",
+    "auth/missing-email":
+      "Bitte gib zuerst deine E-Mail-Adresse ein.",
+    "auth/requires-recent-login":
+      "Bitte melde dich erneut an und wiederhole den Vorgang."
+  };
+
+  return messages[error.code] ||
+    "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
 }
 
-function showStatus(text) {
-    $("status").textContent = text;
+// 5. Statusmeldungen anzeigen
+function showMessage(text, type = "error", target = message) {
+  target.textContent = text;
+  target.className = `message ${type}`;
+  target.hidden = false;
 }
 
-// Jeder Benutzer bekommt seine eigene Vokabelliste.
-function wordCollection(user) {
-    return collection(db, "users", user.uid, "words");
+function clearMessage(target = message) {
+  target.textContent = "";
+  target.hidden = true;
+  target.className = "message";
 }
 
-// Fehlermeldungen bei der Anmeldung
-function authError(error) {
-    console.error(error);
+// 6. Formular zwischen Login und Registrierung wechseln
+function setMode(newMode) {
+  mode = newMode;
 
-    switch (error.code) {
-        case "auth/invalid-credential":
-            return "E-Mail oder Passwort ist falsch.";
+  clearMessage();
+  clearMessage(userMessage);
 
-        case "auth/email-already-in-use":
-            return "Diese E-Mail ist bereits registriert. Bitte einloggen.";
+  const isRegister = mode === "register";
 
-        case "auth/invalid-email":
-            return "Bitte eine gültige E-Mail-Adresse eingeben.";
+  loginTab.classList.toggle("active", mode === "login");
+  registerTab.classList.toggle("active", isRegister);
 
-        case "auth/weak-password":
-            return "Bitte verwende ein stärkeres Passwort.";
+  nameField.hidden = !isRegister;
+  confirmField.hidden = !isRegister;
+  loginOptions.hidden = isRegister;
 
-        case "auth/too-many-requests":
-            return "Zu viele Versuche. Bitte versuche es später erneut.";
+  displayNameInput.required = isRegister;
+  confirmPasswordInput.required = isRegister;
 
-        default:
-            return "Fehler: " + error.message;
+  passwordInput.autocomplete = isRegister
+    ? "new-password"
+    : "current-password";
+
+  if (mode === "login") {
+    formTitle.textContent = "Willkommen zurück!";
+    formSubtitle.textContent =
+      "Melde dich an und lerne neue Wörter.";
+    submitButton.textContent = "Anmelden";
+  } else {
+    formTitle.textContent = "Konto erstellen";
+    formSubtitle.textContent =
+      "Starte jetzt deine Sprachlernreise.";
+    submitButton.textContent = "Konto erstellen";
+  }
+}
+
+loginTab.addEventListener("click", () => setMode("login"));
+registerTab.addEventListener("click", () => setMode("register"));
+
+// 7. Buttons während einer Anfrage sperren
+function setBusy(value) {
+  busy = value;
+  submitButton.disabled = value;
+  forgotButton.disabled = value;
+  loginTab.disabled = value;
+  registerTab.disabled = value;
+
+  submitButton.textContent = value
+    ? "Bitte warten ..."
+    : mode === "register"
+      ? "Konto erstellen"
+      : "Anmelden";
+}
+
+// 8. Registrierung und Anmeldung
+authForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (busy) return;
+
+  clearMessage();
+
+  const email = emailInput.value.trim();
+  const password = passwordInput.value;
+  const name = displayNameInput.value.trim();
+
+  if (mode === "register") {
+    if (name.length < 2) {
+      showMessage("Bitte gib einen Namen mit mindestens 2 Zeichen ein.");
+      displayNameInput.focus();
+      return;
     }
-}
 
-// NEUES KONTO ERSTELLEN
-$("registerButton").addEventListener("click", async () => {
-    const email = $("email").value.trim();
-    const password = $("password").value;
-
-    if (!email || !password) {
-        showLoginMessage("Bitte E-Mail und Passwort eingeben.");
-        return;
+    if (password !== confirmPasswordInput.value) {
+      showMessage("Die beiden Passwörter stimmen nicht überein.");
+      confirmPasswordInput.focus();
+      return;
     }
 
     if (password.length < 6) {
-        showLoginMessage("Das Passwort muss mindestens 6 Zeichen haben.");
-        return;
+      showMessage("Dein Passwort muss mindestens 6 Zeichen haben.");
+      passwordInput.focus();
+      return;
     }
+  }
 
-    showLoginMessage("Konto wird erstellt ...");
+  setBusy(true);
 
-    try {
-        await createUserWithEmailAndPassword(
-            auth, email, password
-        );
-
-        showLoginMessage("");
-    } catch (error) {
-        showLoginMessage(authError(error));
-    }
-});
-
-// EINLOGGEN
-$("loginForm").addEventListener("submit", async event => {
-    event.preventDefault();
-
-    showLoginMessage("Anmeldung läuft ...");
-
-    try {
-        await signInWithEmailAndPassword(
-            auth,
-            $("email").value.trim(),
-            $("password").value
-        );
-
-        showLoginMessage("");
-    } catch (error) {
-        showLoginMessage(authError(error));
-    }
-});
-
-// VOKABELN ANZEIGEN
-function renderWords() {
-    const list = $("wordList");
-    list.replaceChildren();
-
-    if (words.length === 0) {
-        const empty = document.createElement("p");
-        empty.textContent = "Du hast noch keine Vokabeln gespeichert.";
-        list.appendChild(empty);
-        return;
-    }
-
-    words.forEach(word => {
-        const row = document.createElement("div");
-        row.className = "word";
-
-        const label = document.createElement("span");
-        label.textContent = word.german + " — " + word.english;
-
-        const button = document.createElement("button");
-        button.type = "button";
-        button.textContent = "Löschen";
-        button.addEventListener("click", () => deleteWord(word.id));
-
-        row.append(label, button);
-        list.appendChild(row);
-    });
-}
-
-// VOKABELN AUS DER CLOUD LADEN
-async function loadWords(user) {
-    loading = true;
-    showStatus("Vokabeln werden geladen ...");
-
-    try {
-        const snapshot = await getDocs(wordCollection(user));
-
-        words = snapshot.docs.map(item => ({
-            id: item.id,
-            ...item.data()
-        }));
-
-        renderWords();
-        showStatus(words.length + " Vokabeln gespeichert.");
-    } catch (error) {
-        console.error(error);
-        showStatus(
-            "Laden fehlgeschlagen. Prüfe deine Firestore-Regeln."
-        );
-    } finally {
-        loading = false;
-    }
-}
-
-// ANMELDESTATUS PRÜFEN
-async function startApp() {
-    // Die Sitzung im Browser beibehalten.
-    await setPersistence(auth, browserLocalPersistence);
-
-    // Genau ein Anmeldestatus-Listener.
-    onAuthStateChanged(auth, async user => {
-        $("loginPage").classList.toggle("hidden", !!user);
-        $("appPage").classList.toggle("hidden", !user);
-
-        if (!user) {
-            words = [];
-            currentWord = null;
-
-            $("wordList").replaceChildren();
-            $("userEmail").textContent = "";
-            $("result").textContent = "";
-            $("status").textContent = "";
-
-            $("question").textContent =
-                "Klicke auf „Nächste Vokabel“, um zu starten.";
-
-            return;
-        }
-
-        $("userEmail").textContent =
-            "Angemeldet als: " + user.email;
-
-        await loadWords(user);
-    });
-}
-
-startApp().catch(error => {
-    console.error(error);
-    showLoginMessage(
-        "Firebase konnte nicht gestartet werden. Prüfe deine Konfiguration."
-    );
-});
-
-// ABMELDEN
-$("logoutButton").addEventListener("click", async () => {
-    try {
-        await signOut(auth);
-    } catch (error) {
-        console.error(error);
-        showStatus("Abmelden fehlgeschlagen.");
-    }
-});
-
-// NEUE VOKABEL SPEICHERN
-$("wordForm").addEventListener("submit", async event => {
-    event.preventDefault();
-
-    const user = auth.currentUser;
-
-    if (!user || loading) return;
-
-    const german = $("word1").value.trim();
-    const english = $("word2").value.trim();
-
-    if (!german || !english) return;
-
-    try {
-        await addDoc(wordCollection(user), {
-            german,
-            english,
-            createdAt: Date.now()
-        });
-
-        $("word1").value = "";
-        $("word2").value = "";
-
-        await loadWords(user);
-    } catch (error) {
-        console.error(error);
-        showStatus(
-            "Speichern fehlgeschlagen. Prüfe deine Firestore-Regeln."
-        );
-    }
-});
-
-// VOKABEL LÖSCHEN
-async function deleteWord(id) {
-    const user = auth.currentUser;
-
-    if (!user) return;
-
-    try {
-        await deleteDoc(
-            doc(db, "users", user.uid, "words", id)
-        );
-
-        await loadWords(user);
-    } catch (error) {
-        console.error(error);
-        showStatus("Löschen fehlgeschlagen.");
-    }
-}
-
-// NÄCHSTE VOKABEL
-$("nextButton").addEventListener("click", () => {
-    if (words.length === 0) {
-        $("question").textContent =
-            "Füge zuerst ein paar Vokabeln hinzu.";
-        return;
-    }
-
-    const alternatives = words.filter(
-        word => word.id !== currentWord?.id
+  try {
+    // Anmeldung dauerhaft oder nur für diese Sitzung speichern
+    await setPersistence(
+      auth,
+      rememberMeInput.checked
+        ? browserLocalPersistence
+        : browserSessionPersistence
     );
 
-    const pool = alternatives.length ? alternatives : words;
+    if (mode === "register") {
+      const credential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
 
-    currentWord = pool[
-        Math.floor(Math.random() * pool.length)
-    ];
+      await updateProfile(credential.user, {
+        displayName: name
+      });
 
-    $("question").textContent =
-        "Was heißt „" + currentWord.german + "“ auf Englisch?";
-
-    $("answer").value = "";
-    $("result").textContent = "";
-});
-
-// ANTWORT PRÜFEN
-$("answerForm").addEventListener("submit", event => {
-    event.preventDefault();
-
-    if (!currentWord) {
-        $("result").textContent =
-            "Klicke zuerst auf „Nächste Vokabel“.";
-        return;
-    }
-
-    const answer = $("answer").value.trim().toLowerCase();
-    const correct = currentWord.english.trim().toLowerCase();
-
-    if (answer && answer === correct) {
-        $("result").textContent = "Richtig! Gut gemacht.";
+      showMessage(
+        "Dein Konto wurde erstellt. Willkommen bei VocaLearn!",
+        "success"
+      );
     } else {
-        $("result").textContent =
-            "Noch nicht richtig. Lösung: " + currentWord.english;
+      await signInWithEmailAndPassword(auth, email, password);
     }
+  } catch (error) {
+    showMessage(getErrorMessage(error));
+  } finally {
+    setBusy(false);
+  }
 });
+
+// 9. Passwort zurücksetzen
+forgotButton.addEventListener("click", async () => {
+  if (busy) return;
+
+  clearMessage();
+
+  const email = emailInput.value.trim();
+
+  if (!email) {
+    showMessage(
+      "Gib zuerst deine E-Mail-Adresse ein und klicke dann erneut hier."
+    );
+    emailInput.focus();
+    return;
+  }
+
+  forgotButton.disabled = true;
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+
+    showMessage(
+      "Falls für diese Adresse ein Konto existiert, erhältst du eine E-Mail zum Zurücksetzen des Passworts.",
+      "success"
+    );
+  } catch (error) {
+    showMessage(getErrorMessage(error));
+  } finally {
+    forgotButton.disabled = false;
+  }
+});
+
+// 10. Angemeldeten Nutzer anzeigen
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    authView.hidden = true;
+    userView.hidden = false;
+
+    userName.textContent = user.displayName || "Lernender";
+    userEmail.textContent = user.email || "";
+
+    clearMessage(userMessage);
+  } else {
+    userView.hidden = true;
+    authView.hidden = false;
+  }
+});
+
+// 11. Abmelden
+logoutButton.addEventListener("click", async () => {
+  logoutButton.disabled = true;
+  clearMessage(userMessage);
+
+  try {
+    await signOut(auth);
+    setMode("login");
+    authForm.reset();
+    rememberMeInput.checked = true;
+    showMessage("Du wurdest erfolgreich abgemeldet.", "success");
+  } catch (error) {
+    showMessage(getErrorMessage(error), "error", userMessage);
+  } finally {
+    logoutButton.disabled = false;
+  }
+});
+
+// 12. Mit dem Login-Formular beginnen
+setMode("login");
+ 
