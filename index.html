@@ -1,17 +1,270 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VocaLearn</title>
-    <link rel="stylesheet" href="style.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #e9edf2;
+            color: #252525;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Login */
+
+        #loginPage {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-color: #e9edf2;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 400px;
+            padding: 32px;
+            background-color: white;
+            border: 1px solid #d8dde4;
+            border-radius: 7px;
+            text-align: center;
+        }
+
+        .card h1 {
+            margin-top: 0;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #68717c;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        /* Eingabefelder */
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: white;
+            border: 1px solid #cfd5dd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4a83c5;
+        }
+
+        /* Buttons */
+
+        button {
+            padding: 11px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #3979bd;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #2d65a0;
+        }
+
+        .card > button {
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .google {
+            background-color: white;
+            color: #333;
+            border: 1px solid #cfd5dd;
+        }
+
+        .google:hover {
+            background-color: #f5f6f8;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 22px 0;
+            color: #777;
+            font-size: 13px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background-color: #dfe3e8;
+        }
+
+        /* Kopfzeile */
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 7%;
+            background-color: white;
+            border-bottom: 1px solid #d8dde4;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 23px;
+        }
+
+        header button {
+            background-color: #eaf1f9;
+            color: #32669e;
+        }
+
+        header button:hover {
+            background-color: #d9e6f5;
+        }
+
+        /* Hauptbereich */
+
+        main {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        section {
+            margin-bottom: 18px;
+            padding: 22px;
+            background-color: white;
+            border: 1px solid #d8dde4;
+            border-radius: 6px;
+        }
+
+        section h2 {
+            margin-top: 0;
+            margin-bottom: 14px;
+            font-size: 20px;
+        }
+
+        /* Begrüßung */
+
+        .welcome {
+            background-color: #ffffff;
+            border-left: 4px solid #3979bd;
+        }
+
+        .welcome p {
+            margin-bottom: 0;
+            color: #626b76;
+            line-height: 1.6;
+        }
+
+        /* Neue Vokabel */
+
+        .inputs {
+            display: flex;
+            gap: 12px;
+        }
+
+        .inputs input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .addBox button {
+            margin-top: 5px;
+        }
+
+        /* Gespeicherte Vokabeln */
+
+        #wordList > * {
+            padding: 12px;
+            margin-bottom: 8px;
+            background-color: #f7f8fa;
+            border: 1px solid #e0e4e9;
+            border-radius: 4px;
+            overflow-wrap: anywhere;
+        }
+
+        /* Lernen */
+
+        .learnBox {
+            border-top: 3px solid #3979bd;
+        }
+
+        #question {
+            margin: 15px 0;
+            padding: 18px;
+            background-color: #f0f2f5;
+            border: 1px solid #dce1e7;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        #result {
+            font-size: 14px;
+        }
+
+        /* Handy */
+
+        @media (max-width: 600px) {
+            header {
+                padding: 14px 18px;
+            }
+
+            header h1 {
+                font-size: 19px;
+            }
+
+            main {
+                margin-top: 20px;
+                padding: 0 12px;
+            }
+
+            section {
+                padding: 17px;
+            }
+
+            .inputs {
+                flex-direction: column;
+                gap: 0;
+            }
+
+            .card {
+                padding: 25px 20px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
     <!-- LOGIN -->
+
     <div id="loginPage" class="page">
         <div class="card">
+
             <h1>📚 VocaLearn</h1>
             <p class="subtitle">Deine Vokabeln. Dein Fortschritt.</p>
 
@@ -27,11 +280,12 @@
             <button class="google" onclick="googleLogin()">
                 🌐 Mit Google anmelden
             </button>
+
         </div>
     </div>
 
-
     <!-- APP -->
+
     <div id="appPage" class="page hidden">
 
         <header>
@@ -43,12 +297,10 @@
 
             <section class="welcome">
                 <h2>Deine Vokabeln</h2>
-                <p> habibi 
-                                </p>
+                <p>Willkommen bei VocaLearn! Lerne neue Wörter und verbessere dein Englisch.</p>
             </section>
 
             <section class="addBox">
-
                 <h2>Neue Vokabel</h2>
 
                 <div class="inputs">
@@ -56,18 +308,15 @@
                     <input id="word2" placeholder="Englisch, z. B. house">
                 </div>
 
-                <button onclick="addWord()">＋ Vokabel hinzufügen</button>
-
+                <button onclick="addWord()">+ Vokabel hinzufügen</button>
             </section>
 
             <section>
                 <h2>Gespeicherte Vokabeln</h2>
-
                 <div id="wordList"></div>
             </section>
 
             <section class="learnBox">
-
                 <h2>🧠 Lernen</h2>
 
                 <div id="question">
@@ -81,7 +330,6 @@
                 <p id="result"></p>
 
                 <button onclick="nextWord()">Nächste Vokabel</button>
-
             </section>
 
         </main>
@@ -89,5 +337,6 @@
     </div>
 
     <script src="app.js"></script>
+
 </body>
 </html>
