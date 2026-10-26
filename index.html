@@ -1,275 +1,69 @@
 
-            border: 1px solid #c7c7c7;
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .card h1 {
-            margin-top: 0;
-            font-size: 28px;
-        }
-
-        .subtitle {
-            color: #777;
-            margin-bottom: 25px;
-            font-size: 14px;
-        }
-
-        /* Eingabefelder */
-
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background: white;
-            font-size: 14px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #3979bd;
-        }
-
-        /* Buttons */
-
-        button {
-            padding: 11px 16px;
-            border: none;
-            border-radius: 4px;
-            background: #3979bd;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background: #2e649f;
-        }
-
-        .card > button {
-            width: 100%;
-            margin-top: 8px;
-        }
-
-        .google {
-            background: white;
-            color: #333;
-            border: 1px solid #ccc;
-        }
-
-        .google:hover {
-            background: #f3f3f3;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 22px 0;
-            color: #777;
-            font-size: 13px;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: "";
-            flex: 1;
-            height: 1px;
-            background: #ddd;
-        }
-
-        /* Obere Leiste */
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 7%;
-            background: white;
-            border-bottom: 1px solid #ccc;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 23px;
-        }
-
-        header button {
-            background: #eaf1f9;
-            color: #32669e;
-        }
-
-        header button:hover {
-            background: #d9e6f5;
-        }
-
-        /* Hauptbereich */
-
-        main {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        section {
-            margin-bottom: 18px;
-            padding: 22px;
-            background: white;
-            border: 1px solid #c7c7c7;
-            border-radius: 6px;
-        }
-
-        section h2 {
-            margin-top: 0;
-            margin-bottom: 14px;
-            font-size: 20px;
-        }
-
-        /* Begrüßung */
-
-        .welcome {
-            background: white;
-            border-left: 4px solid #3979bd;
-        }
-
-        .welcome p {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 0;
-        }
-
-        /* Vokabel hinzufügen */
-
-        .inputs {
-            display: flex;
-            gap: 12px;
-        }
-
-        .inputs input {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .addBox button {
-            margin-top: 5px;
-        }
-
-        /* Vokabelliste */
-
-        #wordList > * {
-            padding: 12px;
-            margin-bottom: 8px;
-            background: #f7f7f7;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            overflow-wrap: anywhere;
-        }
-
-        /* Lernbereich */
-
-        .learnBox {
-            border-top: 3px solid #3979bd;
-        }
-
-        #question {
-            margin: 15px 0;
-            padding: 18px;
-            background: #eeeeee;
-            border: 1px solid #d5d5d5;
-            border-radius: 4px;
-            text-align: center;
-            font-size: 17px;
-        }
-
-        #result {
-            font-size: 14px;
-        }
-
-        /* Handy */
-
-        @media (max-width: 600px) {
-            header {
-                padding: 14px 18px;
-            }
-
-            header h1 {
-                font-size: 19px;
-            }
-
-            main {
-                margin-top: 20px;
-                padding: 0 12px;
-            }
-
-            section {
-                padding: 17px;
-            }
-
-            .inputs {
-                flex-direction: column;
-                gap: 0;
-            }
-
-            .card {
-                padding: 25px 20px;
-            }
-        }
-    </style>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocaLearn</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="app.js"></script>
 </head>
-
 <body>
 
-    <!-- LOGIN -->
-
-    <div id="loginPage" class="page">
+    <div id="loginPage" class="login-page">
         <div class="card">
-
             <h1>📚 VocaLearn</h1>
             <p class="subtitle">Deine Vokabeln. Dein Fortschritt.</p>
 
-            <input id="email" type="email" placeholder="E-Mail">
-            <input id="password" type="password" placeholder="Passwort">
+            <form id="loginForm">
+                <input id="email" type="email"
+                    placeholder="E-Mail-Adresse"
+                    autocomplete="email" required>
 
-            <button onclick="login()">Einloggen</button>
+                <input id="password" type="password"
+                    placeholder="Passwort (mind. 6 Zeichen)"
+                    autocomplete="current-password"
+                    minlength="6" required>
 
-            <p id="loginMessage"></p>
+                <button type="submit">Einloggen</button>
+            </form>
 
-            <div class="divider">oder</div>
-
-            <button class="google" onclick="googleLogin()">
-                🌐 Mit Google anmelden
+            <button id="registerButton" type="button">
+                Neues Konto erstellen
             </button>
 
+            <p id="loginMessage" role="status"></p>
         </div>
     </div>
 
-    <!-- APP -->
-
-    <div id="appPage" class="page hidden">
-
+    <div id="appPage" class="hidden">
         <header>
             <h1>📚 VocaLearn</h1>
-            <button onclick="logout()">Abmelden</button>
+            <button id="logoutButton" type="button">Abmelden</button>
         </header>
 
         <main>
-
             <section class="welcome">
                 <h2>Deine Vokabeln</h2>
                 <p>Willkommen bei VocaLearn! Lerne neue Wörter und verbessere dein Englisch.</p>
+                <p id="userEmail"></p>
+                <p id="status" role="status"></p>
             </section>
 
-            <section class="addBox">
+            <section>
                 <h2>Neue Vokabel</h2>
 
-                <div class="inputs">
-                    <input id="word1" placeholder="Deutsch, z. B. Haus">
-                    <input id="word2" placeholder="Englisch, z. B. house">
-                </div>
+                <form id="wordForm">
+                    <div class="inputs">
+                        <input id="word1"
+                            placeholder="Deutsch, z. B. Haus" required>
 
-                <button onclick="addWord()">+ Vokabel hinzufügen</button>
+                        <input id="word2"
+                            placeholder="Englisch, z. B. house" required>
+                    </div>
+
+                    <button type="submit">+ Vokabel hinzufügen</button>
+                </form>
             </section>
 
             <section>
@@ -277,27 +71,29 @@
                 <div id="wordList"></div>
             </section>
 
-            <section class="learnBox">
+            <section>
                 <h2>🧠 Lernen</h2>
 
                 <div id="question">
-                    Drücke auf „Lernen“, um zu starten.
+                    Klicke auf „Nächste Vokabel“, um zu starten.
                 </div>
 
-                <input id="answer" placeholder="Deine Antwort">
+                <form id="answerForm">
+                    <input id="answer"
+                        placeholder="Deine Antwort"
+                        autocomplete="off">
 
-                <button onclick="checkAnswer()">Antwort prüfen</button>
+                    <button type="submit">Antwort prüfen</button>
+                </form>
 
-                <p id="result"></p>
+                <p id="result" role="status"></p>
 
-                <button onclick="nextWord()">Nächste Vokabel</button>
+                <button id="nextButton" type="button">
+                    Nächste Vokabel
+                </button>
             </section>
-
         </main>
-
     </div>
-
-    <script src="app.js"></script>
 
 </body>
 </html>
