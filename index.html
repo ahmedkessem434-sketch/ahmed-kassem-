@@ -2,98 +2,136 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VocaLearn</title>
-    <link rel="stylesheet" href="style.css">
-    <script type="module" src="app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111318">
+  <title>VocaLearn – Anmeldung</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
 </head>
 <body>
+  <main class="page">
+    <section class="auth-card">
+      <a class="brand" href="#" aria-label="VocaLearn Startseite">
+        <span class="brand-icon">V</span>
+        <span>VocaLearn</span>
+      </a>
 
-    <div id="loginPage" class="login-page">
-        <div class="card">
-            <h1>📚 VocaLearn</h1>
-            <p class="subtitle">Deine Vokabeln. Dein Fortschritt.</p>
-
-            <form id="loginForm">
-                <input id="email" type="email"
-                    placeholder="E-Mail-Adresse"
-                    autocomplete="email" required>
-
-                <input id="password" type="password"
-                    placeholder="Passwort (mind. 6 Zeichen)"
-                    autocomplete="current-password"
-                    minlength="6" required>
-
-                <button type="submit">Einloggen</button>
-            </form>
-
-            <button id="registerButton" type="button">
-                Neues Konto erstellen
-            </button>
-
-            <p id="loginMessage" role="status"></p>
+      <div id="authView">
+        <div class="intro">
+          <span class="eyebrow">DEIN SPRACHABENTEUER BEGINNT</span>
+          <h1 id="formTitle">Willkommen zurück!</h1>
+          <p id="formSubtitle">
+            Melde dich an und lerne neue Wörter.
+          </p>
         </div>
-    </div>
 
-    <div id="appPage" class="hidden">
-        <header>
-            <h1>📚 VocaLearn</h1>
-            <button id="logoutButton" type="button">Abmelden</button>
-        </header>
+        <div class="tabs" id="authTabs">
+          <button class="tab active" id="loginTab" type="button">
+            Anmelden
+          </button>
+          <button class="tab" id="registerTab" type="button">
+            Registrieren
+          </button>
+        </div>
 
-        <main>
-            <section class="welcome">
-                <h2>Deine Vokabeln</h2>
-                <p>Willkommen bei VocaLearn! Lerne neue Wörter und verbessere dein Englisch.</p>
-                <p id="userEmail"></p>
-                <p id="status" role="status"></p>
-            </section>
+        <form id="authForm">
+          <div class="field" id="nameField" hidden>
+            <label for="displayName">Dein Name</label>
+            <input
+              id="displayName"
+              type="text"
+              autocomplete="name"
+              placeholder="Wie heißt du?"
+              maxlength="80"
+            >
+          </div>
 
-            <section>
-                <h2>Neue Vokabel</h2>
+          <div class="field">
+            <label for="email">E-Mail-Adresse</label>
+            <input
+              id="email"
+              type="email"
+              autocomplete="email"
+              placeholder="du@beispiel.de"
+              required
+            >
+          </div>
 
-                <form id="wordForm">
-                    <div class="inputs">
-                        <input id="word1"
-                            placeholder="Deutsch, z. B. Haus" required>
+          <div class="field" id="passwordField">
+            <label for="password">Passwort</label>
+            <input
+              id="password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Mindestens 6 Zeichen"
+              minlength="6"
+              required
+            >
+          </div>
 
-                        <input id="word2"
-                            placeholder="Englisch, z. B. house" required>
-                    </div>
+          <div class="form-options" id="loginOptions">
+            <label class="checkbox-label">
+              <input id="rememberMe" type="checkbox" checked>
+              <span>Angemeldet bleiben</span>
+            </label>
+            <button class="text-button" id="forgotButton" type="button">
+              Passwort vergessen?
+            </button>
+          </div>
 
-                    <button type="submit">+ Vokabel hinzufügen</button>
-                </form>
-            </section>
+          <div class="field" id="confirmField" hidden>
+            <label for="confirmPassword">Passwort wiederholen</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              autocomplete="new-password"
+              placeholder="Passwort erneut eingeben"
+              minlength="6"
+            >
+          </div>
 
-            <section>
-                <h2>Gespeicherte Vokabeln</h2>
-                <div id="wordList"></div>
-            </section>
+          <p id="message" class="message" role="status" aria-live="polite" hidden></p>
 
-            <section>
-                <h2>🧠 Lernen</h2>
+          <button class="primary-button" id="submitButton" type="submit">
+            Anmelden
+          </button>
+        </form>
 
-                <div id="question">
-                    Klicke auf „Nächste Vokabel“, um zu starten.
-                </div>
+        <p class="footer-note">
+          Mit VocaLearn lernst du Schritt für Schritt neue Sprachen.
+        </p>
+      </div>
 
-                <form id="answerForm">
-                    <input id="answer"
-                        placeholder="Deine Antwort"
-                        autocomplete="off">
+      <section id="userView" hidden>
+        <div class="intro">
+          <span class="eyebrow">DU BIST ANGEMELDET</span>
+          <h1>Hallo <span id="userName">Lernender</span>!</h1>
+          <p>Schön, dass du bei VocaLearn bist.</p>
+        </div>
 
-                    <button type="submit">Antwort prüfen</button>
-                </form>
+        <div class="account-box">
+          <span class="account-label">Dein Konto</span>
+          <p id="userEmail" class="user-email"></p>
+          <span class="status"><span class="status-dot"></span> Angemeldet</span>
+        </div>
 
-                <p id="result" role="status"></p>
+        <p id="userMessage" class="message" role="status" hidden></p>
 
-                <button id="nextButton" type="button">
-                    Nächste Vokabel
-                </button>
-            </section>
-        </main>
-    </div>
+        <button class="primary-button" id="logoutButton" type="button">
+          Abmelden
+        </button>
+      </section>
 
+      <div class="security-note">
+        <span aria-hidden="true">🔒</span>
+        <span>Deine Anmeldung wird sicher über Firebase verwaltet.</span>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      VocaLearn · Lerne jeden Tag etwas Neues
+    </footer>
+  </main>
 </body>
 </html>
