@@ -5,133 +5,689 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#111318">
-  <title>VocaLearn – Anmeldung</title>
-  <link rel="stylesheet" href="style.css">
-  <script type="module" src="app.js"></script>
+  <title>VocaLearn</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f0f1f3;
+      color: #252830;
+    }
+
+    [hidden] { display: none !important; }
+
+    .brand {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 24px;
+      color: #ed7138;
+    }
+
+    .card {
+      background: white;
+      padding: 28px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 440px;
+      margin: 55px auto;
+    }
+
+    h1 { font-size: 26px; }
+    p { line-height: 1.5; }
+
+    .muted { color: #70747d; }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin: 14px 0 6px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    input:focus {
+      outline: 2px solid #f3b08e;
+      border-color: #ed7138;
+    }
+
+    button {
+      padding: 11px 15px;
+      border: 0;
+      border-radius: 6px;
+      background: #ed7138;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: .6; cursor: wait; }
+
+    button:hover:not(:disabled) { filter: brightness(.94); }
+
+    .primary {
+      width: 100%;
+      margin-top: 18px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin: 20px 0;
+    }
+
+    .tabs button {
+      flex: 1;
+      background: #eee;
+      color: #333;
+    }
+
+    .tabs button.active {
+      background: #ed7138;
+      color: white;
+    }
+
+    .text-button {
+      background: none;
+      color: #b74e20;
+      padding-left: 0;
+      margin-top: 12px;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .check-row input {
+      width: auto;
+    }
+
+    .message {
+      padding: 10px;
+      background: #fff0e8;
+      border-radius: 6px;
+      overflow-wrap: anywhere;
+    }
+
+    .success {
+      background: #e4f7e9;
+      color: #176b32;
+    }
+
+    header {
+      background: white;
+      padding: 16px max(18px, calc((100% - 850px) / 2));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    header .brand { margin: 0; }
+
+    header button {
+      background: #eee;
+      color: #333;
+    }
+
+    main.app-main {
+      max-width: 850px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+
+    .panel {
+      background: white;
+      padding: 22px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 18px;
+    }
+
+    .panel h2 { margin-top: 0; }
+
+    .inputs {
+      display: flex;
+      gap: 10px;
+    }
+
+    .inputs input { min-width: 0; }
+
+    .add-button { margin-top: 12px; }
+
+    .word-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+      overflow-wrap: anywhere;
+    }
+
+    .word-item button {
+      background: #eee;
+      color: #333;
+      flex-shrink: 0;
+    }
+
+    #question {
+      background: #f3f3f3;
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 22px;
+      overflow-wrap: anywhere;
+    }
+
+    #result { font-weight: bold; }
+
+    @media (max-width: 520px) {
+      .card { margin: 20px auto; width: calc(100% - 24px); padding: 22px; }
+      .inputs { flex-direction: column; }
+      header { padding: 14px; }
+      .panel { padding: 16px; }
+    }
+  </style>
 </head>
+
 <body>
-  <main class="page">
-    <section class="auth-card">
-      <a class="brand" href="#" aria-label="VocaLearn Startseite">
-        <span class="brand-icon">V</span>
-        <span>VocaLearn</span>
-      </a>
 
-      <div id="authView">
-        <div class="intro">
-          <span class="eyebrow">DEIN SPRACHABENTEUER BEGINNT</span>
-          <h1 id="formTitle">Willkommen zurück!</h1>
-          <p id="formSubtitle">
-            Melde dich an und lerne neue Wörter.
-          </p>
-        </div>
+  <!-- ANMELDUNG UND REGISTRIERUNG -->
+  <section id="authView" class="card">
+    <div class="brand">📚 VocaLearn</div>
 
-        <div class="tabs" id="authTabs">
-          <button class="tab active" id="loginTab" type="button">
-            Anmelden
-          </button>
-          <button class="tab" id="registerTab" type="button">
-            Registrieren
-          </button>
-        </div>
+    <h1 id="formTitle">Willkommen zurück!</h1>
+    <p id="formSubtitle" class="muted">
+      Melde dich an und lerne neue Wörter.
+    </p>
 
-        <form id="authForm">
-          <div class="field" id="nameField" hidden>
-            <label for="displayName">Dein Name</label>
-            <input
-              id="displayName"
-              type="text"
-              autocomplete="name"
-              placeholder="Wie heißt du?"
-              maxlength="80"
-            >
-          </div>
+    <div class="tabs">
+      <button id="loginTab" class="active" type="button">Anmelden</button>
+      <button id="registerTab" type="button">Registrieren</button>
+    </div>
 
-          <div class="field">
-            <label for="email">E-Mail-Adresse</label>
-            <input
-              id="email"
-              type="email"
-              autocomplete="email"
-              placeholder="du@beispiel.de"
-              required
-            >
-          </div>
-
-          <div class="field" id="passwordField">
-            <label for="password">Passwort</label>
-            <input
-              id="password"
-              type="password"
-              autocomplete="current-password"
-              placeholder="Mindestens 6 Zeichen"
-              minlength="6"
-              required
-            >
-          </div>
-
-          <div class="form-options" id="loginOptions">
-            <label class="checkbox-label">
-              <input id="rememberMe" type="checkbox" checked>
-              <span>Angemeldet bleiben</span>
-            </label>
-            <button class="text-button" id="forgotButton" type="button">
-              Passwort vergessen?
-            </button>
-          </div>
-
-          <div class="field" id="confirmField" hidden>
-            <label for="confirmPassword">Passwort wiederholen</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              autocomplete="new-password"
-              placeholder="Passwort erneut eingeben"
-              minlength="6"
-            >
-          </div>
-
-          <p id="message" class="message" role="status" aria-live="polite" hidden></p>
-
-          <button class="primary-button" id="submitButton" type="submit">
-            Anmelden
-          </button>
-        </form>
-
-        <p class="footer-note">
-          Mit VocaLearn lernst du Schritt für Schritt neue Sprachen.
-        </p>
+    <form id="authForm">
+      <div id="nameField" hidden>
+        <label for="displayName">Dein Name</label>
+        <input id="displayName" type="text" maxlength="80"
+               autocomplete="name" placeholder="Wie heißt du?">
       </div>
 
-      <section id="userView" hidden>
-        <div class="intro">
-          <span class="eyebrow">DU BIST ANGEMELDET</span>
-          <h1>Hallo <span id="userName">Lernender</span>!</h1>
-          <p>Schön, dass du bei VocaLearn bist.</p>
-        </div>
+      <label for="email">E-Mail-Adresse</label>
+      <input id="email" type="email" required autocomplete="email"
+             placeholder="du@beispiel.de">
 
-        <div class="account-box">
-          <span class="account-label">Dein Konto</span>
-          <p id="userEmail" class="user-email"></p>
-          <span class="status"><span class="status-dot"></span> Angemeldet</span>
-        </div>
+      <div id="passwordField">
+        <label for="password">Passwort</label>
+        <input id="password" type="password" required minlength="6"
+               autocomplete="current-password" placeholder="Mindestens 6 Zeichen">
+      </div>
 
-        <p id="userMessage" class="message" role="status" hidden></p>
+      <div id="confirmField" hidden>
+        <label for="confirmPassword">Passwort wiederholen</label>
+        <input id="confirmPassword" type="password" minlength="6"
+               autocomplete="new-password" placeholder="Passwort erneut eingeben">
+      </div>
 
-        <button class="primary-button" id="logoutButton" type="button">
-          Abmelden
+      <div id="loginOptions">
+        <label class="check-row">
+          <input id="rememberMe" type="checkbox" checked>
+          Angemeldet bleiben
+        </label>
+        <button id="forgotButton" class="text-button" type="button">
+          Passwort vergessen?
         </button>
+      </div>
+
+      <p id="message" class="message" role="status" aria-live="polite" hidden></p>
+
+      <button id="submitButton" class="primary" type="submit">Anmelden</button>
+    </form>
+  </section>
+
+  <!-- VOKABELSEITE: ERSCHEINT NACH DER ANMELDUNG -->
+  <div id="appView" hidden>
+    <header>
+      <div class="brand">📚 VocaLearn</div>
+      <button id="logoutButton" type="button">Abmelden</button>
+    </header>
+
+    <main class="app-main">
+      <section class="panel">
+        <h1>Deine Vokabeln</h1>
+        <p class="muted">
+          Hallo <strong id="userName">Lernender</strong>!
+          Füge Wörter hinzu und übe sie in deinem eigenen Quiz.
+        </p>
+        <p class="muted" id="userEmail"></p>
+        <p id="appMessage" class="message" role="status" aria-live="polite" hidden></p>
       </section>
 
-      <div class="security-note">
-        <span aria-hidden="true">🔒</span>
-        <span>Deine Anmeldung wird sicher über Firebase verwaltet.</span>
-      </div>
-    </section>
+      <section class="panel">
+        <h2>Neue Vokabel hinzufügen</h2>
+        <form id="wordForm">
+          <div class="inputs">
+            <input id="word1" required maxlength="200"
+                   placeholder="Deutsch, z. B. Haus">
+            <input id="word2" required maxlength="200"
+                   placeholder="Englisch, z. B. house">
+          </div>
+          <button class="add-button" id="addButton" type="submit">
+            + Vokabel hinzufügen
+          </button>
+        </form>
+      </section>
 
-    <footer class="page-footer">
-      VocaLearn · Lerne jeden Tag etwas Neues
-    </footer>
-  </main>
+      <section class="panel">
+        <h2>Gespeicherte Vokabeln</h2>
+        <p id="wordCount" class="muted">Noch keine Vokabeln geladen.</p>
+        <div id="wordList"></div>
+      </section>
+
+      <section class="panel">
+        <h2>🧠 Vokabel-Quiz</h2>
+        <p class="muted">Übersetze das deutsche Wort ins Englische.</p>
+        <div id="question">Klicke auf „Lernen starten“.</div>
+
+        <form id="answerForm">
+          <label for="answer">Deine englische Antwort</label>
+          <input id="answer" maxlength="200" placeholder="Antwort eingeben">
+          <button class="primary" type="submit">Antwort prüfen</button>
+        </form>
+
+        <p id="result" role="status" aria-live="polite"></p>
+        <button id="nextButton" type="button">Lernen starten</button>
+      </section>
+    </main>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from
+      "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      updateProfile,
+      sendPasswordResetEmail,
+      setPersistence,
+      browserLocalPersistence,
+      browserSessionPersistence
+    } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      deleteDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+
+    // Deine bestehende Firebase-Konfiguration
+    const firebaseConfig = {
+      apiKey: "AIzaSyApwjzgVtKnP258TDJxDwnyNAAZGWeXpXM",
+      authDomain: "vocalearn-2e7b5.firebaseapp.com",
+      projectId: "vocalearn-2e7b5",
+      storageBucket: "vocalearn-2e7b5.firebasestorage.app",
+      messagingSenderId: "706553554359",
+      appId: "1:706553554359:web:f63df69b367c1aa9983432",
+      measurementId: "G-9CDWK528RX"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const $ = id => document.getElementById(id);
+
+    let mode = "login";
+    let busy = false;
+    let words = [];
+    let currentWord = null;
+    let answered = false;
+    let loadVersion = 0;
+
+    function showMessage(id, text, success = false) {
+      const el = $(id);
+      el.textContent = text;
+      el.className = success ? "message success" : "message";
+      el.hidden = false;
+    }
+
+    function clearMessage(id) {
+      $(id).textContent = "";
+      $(id).hidden = true;
+    }
+
+    function errorText(error) {
+      const errors = {
+        "auth/email-already-in-use": "Diese E-Mail ist bereits registriert.",
+        "auth/invalid-email": "Bitte gib eine gültige E-Mail-Adresse ein.",
+        "auth/weak-password": "Das Passwort muss mindestens 6 Zeichen haben.",
+        "auth/invalid-credential": "E-Mail oder Passwort ist falsch.",
+        "auth/user-not-found": "Dieses Konto wurde nicht gefunden.",
+        "auth/wrong-password": "Das Passwort ist falsch.",
+        "auth/too-many-requests": "Zu viele Versuche. Bitte warte kurz.",
+        "auth/network-request-failed": "Bitte prüfe deine Internetverbindung.",
+        "auth/operation-not-allowed": "Aktiviere E-Mail/Passwort in Firebase Authentication.",
+        "auth/unauthorized-domain": "Füge deine Website-Domain in Firebase hinzu.",
+        "permission-denied": "Firestore verweigert den Zugriff. Prüfe die Datenbankregeln.",
+        "unavailable": "Firebase ist gerade nicht erreichbar. Versuche es erneut."
+      };
+      return errors[error.code] ||
+        (error.code?.startsWith("firestore/") || error.code?.startsWith("permission-denied")
+          ? "Datenbankzugriff nicht möglich. Prüfe deine Firestore-Regeln."
+          : "Ein Fehler ist aufgetreten. Bitte versuche es erneut.");
+    }
+
+    function setMode(nextMode) {
+      mode = nextMode;
+      const register = mode === "register";
+
+      $("loginTab").classList.toggle("active", !register);
+      $("registerTab").classList.toggle("active", register);
+      $("nameField").hidden = !register;
+      $("confirmField").hidden = !register;
+      $("loginOptions").hidden = register;
+      $("displayName").required = register;
+      $("confirmPassword").required = register;
+      $("password").autocomplete = register ? "new-password" : "current-password";
+      $("formTitle").textContent = register ? "Konto erstellen" : "Willkommen zurück!";
+      $("formSubtitle").textContent = register
+        ? "Starte jetzt deine Sprachlernreise."
+        : "Melde dich an und lerne neue Wörter.";
+      $("submitButton").textContent = register ? "Konto erstellen" : "Anmelden";
+      clearMessage("message");
+    }
+
+    $("loginTab").addEventListener("click", () => setMode("login"));
+    $("registerTab").addEventListener("click", () => setMode("register"));
+
+    $("authForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      if (busy) return;
+
+      clearMessage("message");
+
+      const email = $("email").value.trim();
+      const password = $("password").value;
+      const name = $("displayName").value.trim();
+
+      if (mode === "register") {
+        if (name.length < 2) {
+          showMessage("message", "Bitte gib einen Namen mit mindestens 2 Zeichen ein.");
+          return;
+        }
+        if (password !== $("confirmPassword").value) {
+          showMessage("message", "Die Passwörter stimmen nicht überein.");
+          return;
+        }
+      }
+
+      busy = true;
+      $("submitButton").disabled = true;
+      $("submitButton").textContent = "Bitte warten ...";
+
+      try {
+        await setPersistence(
+          auth,
+          $("rememberMe").checked
+            ? browserLocalPersistence
+            : browserSessionPersistence
+        );
+
+        if (mode === "register") {
+          const credential = await createUserWithEmailAndPassword(auth, email, password);
+          await updateProfile(credential.user, { displayName: name });
+        } else {
+          await signInWithEmailAndPassword(auth, email, password);
+        }
+      } catch (error) {
+        showMessage("message", errorText(error));
+      } finally {
+        busy = false;
+        $("submitButton").disabled = false;
+        $("submitButton").textContent =
+          mode === "register" ? "Konto erstellen" : "Anmelden";
+      }
+    });
+
+    $("forgotButton").addEventListener("click", async () => {
+      const email = $("email").value.trim();
+
+      if (!email) {
+        showMessage("message", "Gib zuerst deine E-Mail-Adresse ein.");
+        $("email").focus();
+        return;
+      }
+
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showMessage("message",
+          "Falls ein Konto existiert, erhältst du eine E-Mail zum Zurücksetzen.",
+          true);
+      } catch (error) {
+        showMessage("message", errorText(error));
+      }
+    });
+
+    function wordCollection(user) {
+      return collection(db, "users", user.uid, "words");
+    }
+
+    async function loadWords(user) {
+      const thisLoad = ++loadVersion;
+      $("wordList").replaceChildren();
+      $("wordCount").textContent = "Vokabeln werden geladen ...";
+
+      try {
+        const snapshot = await getDocs(wordCollection(user));
+        if (thisLoad !== loadVersion || auth.currentUser?.uid !== user.uid) return;
+
+        words = snapshot.docs.map(item => ({
+          id: item.id,
+          ...item.data()
+        }));
+
+        renderWords();
+        if (words.length) {
+          showMessage("appMessage", "Deine Vokabeln wurden geladen.", true);
+          setTimeout(() => {
+            if (!$("appView").hidden) clearMessage("appMessage");
+          }, 2500);
+        }
+      } catch (error) {
+        if (thisLoad !== loadVersion) return;
+        $("wordCount").textContent = "Vokabeln konnten nicht geladen werden.";
+        showMessage("appMessage", errorText(error));
+      }
+    }
+
+    function renderWords() {
+      $("wordList").replaceChildren();
+      $("wordCount").textContent =
+        words.length + (words.length === 1 ? " Vokabel" : " Vokabeln");
+
+      if (!words.length) {
+        const empty = document.createElement("p");
+        empty.className = "muted";
+        empty.textContent = "Noch keine Vokabeln. Füge oben deine erste hinzu!";
+        $("wordList").append(empty);
+        $("question").textContent = "Füge zuerst einige Vokabeln hinzu.";
+        currentWord = null;
+        return;
+      }
+
+      for (const word of words) {
+        const row = document.createElement("div");
+        row.className = "word-item";
+
+        const label = document.createElement("span");
+        label.textContent = `${word.german} — ${word.english}`;
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.textContent = "Löschen";
+        remove.setAttribute("aria-label", `${word.german} löschen`);
+        remove.addEventListener("click", () => removeWord(word.id));
+
+        row.append(label, remove);
+        $("wordList").append(row);
+      }
+    }
+
+    $("wordForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const german = $("word1").value.trim();
+      const english = $("word2").value.trim();
+
+      if (!german || !english) return;
+
+      $("addButton").disabled = true;
+      clearMessage("appMessage");
+
+      try {
+        const reference = await addDoc(wordCollection(user), {
+          german,
+          english,
+          createdAt: Date.now()
+        });
+
+        words.push({ id: reference.id, german, english, createdAt: Date.now() });
+        renderWords();
+        $("wordForm").reset();
+        showMessage("appMessage", "Vokabel gespeichert!", true);
+      } catch (error) {
+        showMessage("appMessage", errorText(error));
+      } finally {
+        $("addButton").disabled = false;
+      }
+    });
+
+    async function removeWord(id) {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      try {
+        await deleteDoc(doc(db, "users", user.uid, "words", id));
+        words = words.filter(word => word.id !== id);
+        renderWords();
+        showMessage("appMessage", "Vokabel gelöscht.", true);
+      } catch (error) {
+        showMessage("appMessage", errorText(error));
+      }
+    }
+
+    function nextWord() {
+      clearMessage("appMessage");
+      $("result").textContent = "";
+      $("answer").value = "";
+      answered = false;
+
+      if (!words.length) {
+        currentWord = null;
+        $("question").textContent = "Füge zuerst Vokabeln hinzu.";
+        return;
+      }
+
+      const choices = words.filter(word => word.id !== currentWord?.id);
+      const pool = choices.length ? choices : words;
+      currentWord = pool[Math.floor(Math.random() * pool.length)];
+
+      $("question").textContent = currentWord.german;
+      $("answer").disabled = false;
+      $("answer").focus();
+    }
+
+    $("nextButton").addEventListener("click", nextWord);
+
+    $("answerForm").addEventListener("submit", event => {
+      event.preventDefault();
+
+      if (!currentWord || answered) {
+        if (currentWord && answered) nextWord();
+        else showMessage("appMessage", "Füge zuerst Vokabeln hinzu.");
+        return;
+      }
+
+      const answer = $("answer").value.trim().toLocaleLowerCase("de");
+      if (!answer) {
+        $("answer").focus();
+        return;
+      }
+
+      answered = true;
+      $("answer").disabled = true;
+
+      if (answer === currentWord.english.trim().toLocaleLowerCase("de")) {
+        $("result").textContent = "✅ Richtig! Sehr gut!";
+      } else {
+        $("result").textContent = `❌ Richtig wäre: ${currentWord.english}`;
+      }
+
+      $("nextButton").textContent = "Nächste Vokabel";
+    });
+
+    $("logoutButton").addEventListener("click", async () => {
+      $("logoutButton").disabled = true;
+      try {
+        await signOut(auth);
+        setMode("login");
+        $("authForm").reset();
+        $("rememberMe").checked = true;
+      } catch (error) {
+        showMessage("appMessage", errorText(error));
+      } finally {
+        $("logoutButton").disabled = false;
+      }
+    });
+
+    onAuthStateChanged(auth, async user => {
+      clearMessage("message");
+      clearMessage("appMessage");
+      loadVersion++;
+
+      $("authView").hidden = !!user;
+      $("appView").hidden = !user;
+
+      if (user) {
+        $("userName").textContent = user.displayName || "Lernender";
+        $("userEmail").textContent = user.email || "";
+        words = [];
+        currentWord = null;
+        answered = false;
+        $("nextButton").textContent = "Lernen starten";
+        await loadWords(user);
+      } else {
+        words = [];
+        currentWord = null;
+        $("wordList").replaceChildren();
+      }
+    });
+
+    setMode("login");
+  </script>
 </body>
 </html>
+
