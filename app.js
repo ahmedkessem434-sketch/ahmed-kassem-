@@ -11,7 +11,9 @@ import {
   sendPasswordResetEmail,
   setPersistence,
   browserLocalPersistence,
-  browserSessionPersistence
+  browserSessionPersistence,
+  RecaptchaVerifier,
+  signInWithPhoneNumber
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 
 // 1. Deine Firebase-Konfiguration
@@ -39,7 +41,6 @@ const formSubtitle = document.getElementById("formSubtitle");
 
 const loginTab = document.getElementById("loginTab");
 const registerTab = document.getElementById("registerTab");
-const authTabs = document.getElementById("authTabs");
 
 const nameField = document.getElementById("nameField");
 const passwordField = document.getElementById("passwordField");
@@ -61,45 +62,45 @@ const userMessage = document.getElementById("userMessage");
 const userName = document.getElementById("userName");
 const userEmail = document.getElementById("userEmail");
 
+// Telefonnummer-Elemente
+const phoneNumberInput = document.getElementById("phoneNumber");
+const sendPhoneCodeButton = document.getElementById("sendPhoneCode");
+const phoneCodeInput = document.getElementById("phoneCode");
+const verifyPhoneCodeButton = document.getElementById("verifyPhoneCode");
+
 let mode = "login";
 let busy = false;
+let confirmationResult = null;
+let recaptchaVerifier = null;
 
 // 4. Deutsche Fehlermeldungen
 function getErrorMessage(error) {
   const messages = {
-    "auth/email-already-in-use":
-      "Diese E-Mail-Adresse ist bereits registriert.",
-    "auth/invalid-email":
-      "Bitte gib eine gültige E-Mail-Adresse ein.",
-    "auth/weak-password":
-      "Dein Passwort ist zu schwach. Verwende mindestens 6 Zeichen.",
-    "auth/invalid-credential":
-      "E-Mail-Adresse oder Passwort ist falsch.",
-    "auth/user-not-found":
-      "Es wurde kein Konto mit diesen Anmeldedaten gefunden.",
-    "auth/wrong-password":
-      "Das Passwort ist falsch.",
-    "auth/too-many-requests":
-      "Zu viele Versuche. Bitte warte kurz und versuche es später erneut.",
-    "auth/network-request-failed":
-      "Keine Verbindung möglich. Prüfe deine Internetverbindung.",
-    "auth/operation-not-allowed":
-      "Die E-Mail-/Passwort-Anmeldung ist in Firebase nicht aktiviert.",
-    "auth/unauthorized-domain":
-      "Diese Website-Domain ist in Firebase nicht autorisiert.",
-    "auth/invalid-api-key":
-      "Der Firebase-API-Schlüssel ist ungültig.",
-    "auth/missing-email":
-      "Bitte gib zuerst deine E-Mail-Adresse ein.",
-    "auth/requires-recent-login":
-      "Bitte melde dich erneut an und wiederhole den Vorgang."
+    "auth/email-already-in-use": "Diese E-Mail-Adresse ist bereits registriert.",
+    "auth/invalid-email": "Bitte gib eine gültige E-Mail-Adresse ein.",
+    "auth/weak-password": "Dein Passwort ist zu schwach. Verwende mindestens 6 Zeichen.",
+    "auth/invalid-credential": "E-Mail-Adresse oder Passwort ist falsch.",
+    "auth/user-not-found": "Es wurde kein Konto mit diesen Anmeldedaten gefunden.",
+    "auth/wrong-password": "Das Passwort ist falsch.",
+    "auth/too-many-requests": "Zu viele Versuche. Bitte warte kurz.",
+    "auth/network-request-failed": "Keine Verbindung möglich. Prüfe deine Internetverbindung.",
+    "auth/operation-not-allowed": "Diese Anmeldemethode ist in Firebase nicht aktiviert.",
+    "auth/unauthorized-domain": "Diese Website-Domain ist in Firebase nicht autorisiert.",
+    "auth/invalid-api-key": "Der Firebase-API-Schlüssel ist ungültig.",
+    "auth/missing-email": "Bitte gib zuerst deine E-Mail-Adresse ein.",
+    "auth/invalid-phone-number": "Bitte gib eine gültige Telefonnummer im internationalen Format ein.",
+    "auth/missing-phone-number": "Bitte gib deine Handynummer ein.",
+    "auth/invalid-verification-code": "Der SMS-Code ist falsch.",
+    "auth/code-expired": "Der SMS-Code ist abgelaufen. Bitte fordere einen neuen an.",
+    "auth/captcha-check-failed": "Die Sicherheitsprüfung ist fehlgeschlagen.",
+    "auth/requires-recent-login": "Bitte melde dich erneut an."
   };
 
   return messages[error.code] ||
     "Es ist ein Fehler aufgetreten. Bitte versuche es erneut.";
 }
 
-// 5. Statusmeldungen anzeigen
+// 5. Statusmeldungen
 function showMessage(text, type = "error", target = message) {
   target.textContent = text;
   target.className = `message ${type}`;
@@ -112,7 +113,7 @@ function clearMessage(target = message) {
   target.className = "message";
 }
 
-// 6. Formular zwischen Login und Registrierung wechseln
+// 6. Login und Registrierung
 function setMode(newMode) {
   mode = newMode;
 
@@ -135,23 +136,23 @@ function setMode(newMode) {
     ? "new-password"
     : "current-password";
 
-  if (mode === "login") {
-    formTitle.textContent = "Willkommen zurück!";
-    formSubtitle.textContent =
-      "Melde dich an und lerne neue Wörter.";
-    submitButton.textContent = "Anmelden";
-  } else {
-    formTitle.textContent = "Konto erstellen";
-    formSubtitle.textContent =
-      "Starte jetzt deine Sprachlernreise.";
-    submitButton.textContent = "Konto erstellen";
-  }
+  formTitle.textContent = isRegister
+    ? "Konto erstellen"
+    : "Willkommen zurück!";
+
+  formSubtitle.textContent = isRegister
+    ? "Starte jetzt deine Sprachlernreise."
+    : "Melde dich an und lerne neue Wörter.";
+
+  submitButton.textContent = isRegister
+    ? "Konto erstellen"
+    : "Anmelden";
 }
 
 loginTab.addEventListener("click", () => setMode("login"));
 registerTab.addEventListener("click", () => setMode("register"));
 
-// 7. Buttons während einer Anfrage sperren
+// 7. Buttons sperren
 function setBusy(value) {
   busy = value;
   submitButton.disabled = value;
@@ -166,7 +167,7 @@ function setBusy(value) {
       : "Anmelden";
 }
 
-// 8. Registrierung und Anmeldung
+// 8. E-Mail-Anmeldung und Registrierung
 authForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -181,19 +182,16 @@ authForm.addEventListener("submit", async (event) => {
   if (mode === "register") {
     if (name.length < 2) {
       showMessage("Bitte gib einen Namen mit mindestens 2 Zeichen ein.");
-      displayNameInput.focus();
       return;
     }
 
     if (password !== confirmPasswordInput.value) {
       showMessage("Die beiden Passwörter stimmen nicht überein.");
-      confirmPasswordInput.focus();
       return;
     }
 
     if (password.length < 6) {
       showMessage("Dein Passwort muss mindestens 6 Zeichen haben.");
-      passwordInput.focus();
       return;
     }
   }
@@ -201,7 +199,6 @@ authForm.addEventListener("submit", async (event) => {
   setBusy(true);
 
   try {
-    // Anmeldung dauerhaft oder nur für diese Sitzung speichern
     await setPersistence(
       auth,
       rememberMeInput.checked
@@ -243,9 +240,7 @@ forgotButton.addEventListener("click", async () => {
   const email = emailInput.value.trim();
 
   if (!email) {
-    showMessage(
-      "Gib zuerst deine E-Mail-Adresse ein und klicke dann erneut hier."
-    );
+    showMessage("Gib zuerst deine E-Mail-Adresse ein.");
     emailInput.focus();
     return;
   }
@@ -266,14 +261,116 @@ forgotButton.addEventListener("click", async () => {
   }
 });
 
-// 10. Angemeldeten Nutzer anzeigen
+// 10. Telefonnummer: reCAPTCHA vorbereiten
+function initializeRecaptcha() {
+  if (recaptchaVerifier) return;
+
+  recaptchaVerifier = new RecaptchaVerifier(
+    auth,
+    "recaptcha-container",
+    {
+      size: "normal"
+    }
+  );
+}
+
+// 11. SMS-Code senden
+if (sendPhoneCodeButton) {
+  sendPhoneCodeButton.addEventListener("click", async () => {
+    if (busy) return;
+
+    clearMessage();
+
+    const phoneNumber = phoneNumberInput.value.trim();
+
+    if (!phoneNumber) {
+      showMessage("Bitte gib deine Handynummer ein.");
+      return;
+    }
+
+    sendPhoneCodeButton.disabled = true;
+
+    try {
+      await setPersistence(
+        auth,
+        rememberMeInput.checked
+          ? browserLocalPersistence
+          : browserSessionPersistence
+      );
+
+      initializeRecaptcha();
+
+      const appVerifier = await recaptchaVerifier;
+
+      confirmationResult = await signInWithPhoneNumber(
+        auth,
+        phoneNumber,
+        appVerifier
+      );
+
+      showMessage(
+        "Der SMS-Code wurde an deine Handynummer gesendet.",
+        "success"
+      );
+
+      phoneCodeInput.hidden = false;
+      verifyPhoneCodeButton.hidden = false;
+    } catch (error) {
+      showMessage(getErrorMessage(error));
+
+      if (recaptchaVerifier) {
+        recaptchaVerifier.clear();
+        recaptchaVerifier = null;
+      }
+    } finally {
+      sendPhoneCodeButton.disabled = false;
+    }
+  });
+}
+
+// 12. SMS-Code überprüfen und anmelden
+if (verifyPhoneCodeButton) {
+  verifyPhoneCodeButton.addEventListener("click", async () => {
+    if (!confirmationResult) {
+      showMessage("Bitte fordere zuerst einen SMS-Code an.");
+      return;
+    }
+
+    const code = phoneCodeInput.value.trim();
+
+    if (!code) {
+      showMessage("Bitte gib den SMS-Code ein.");
+      return;
+    }
+
+    verifyPhoneCodeButton.disabled = true;
+
+    try {
+      await confirmationResult.confirm(code);
+
+      showMessage(
+        "Du hast dich erfolgreich mit deiner Handynummer angemeldet!",
+        "success"
+      );
+
+      phoneCodeInput.value = "";
+      confirmationResult = null;
+    } catch (error) {
+      showMessage(getErrorMessage(error));
+    } finally {
+      verifyPhoneCodeButton.disabled = false;
+    }
+  });
+}
+
+// 13. Angemeldeten Nutzer anzeigen
 onAuthStateChanged(auth, (user) => {
   if (user) {
     authView.hidden = true;
     userView.hidden = false;
 
     userName.textContent = user.displayName || "Lernender";
-    userEmail.textContent = user.email || "";
+    userEmail.textContent = user.email || user.phoneNumber || "";
 
     clearMessage(userMessage);
   } else {
@@ -282,16 +379,18 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// 11. Abmelden
+// 14. Abmelden
 logoutButton.addEventListener("click", async () => {
   logoutButton.disabled = true;
   clearMessage(userMessage);
 
   try {
     await signOut(auth);
+
     setMode("login");
     authForm.reset();
     rememberMeInput.checked = true;
+
     showMessage("Du wurdest erfolgreich abgemeldet.", "success");
   } catch (error) {
     showMessage(getErrorMessage(error), "error", userMessage);
@@ -300,6 +399,5 @@ logoutButton.addEventListener("click", async () => {
   }
 });
 
-// 12. Mit dem Login-Formular beginnen
+// 15. Mit dem Login-Formular beginnen
 setMode("login");
- 
